@@ -1,12 +1,12 @@
-import * as LucideIcons from 'lucide-react'
 import { CheckCircle2 } from 'lucide-react'
+import { getIcon } from '../lib/icons'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { useProgression } from '../hooks/useProgression'
 import { NIVEAUX } from '../content/niveaux'
 import { CHAPITRES } from '../content/chapitres'
 
 function LucideIcon({ name, size, color, strokeWidth = 1.8 }) {
-  const Icon = LucideIcons[name]
+  const Icon = getIcon(name)
   if (!Icon) return null
   return <Icon size={size} color={color} strokeWidth={strokeWidth} />
 }

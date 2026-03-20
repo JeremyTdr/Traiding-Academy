@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import * as LucideIcons from 'lucide-react'
 import { ChevronRight, Zap, LineChart, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
-import { useSimulator } from '../hooks/useSimulator'
+import { getIcon } from '../lib/icons'
+import { useSimulatorContext } from '../hooks/useSimulatorContext.jsx'
+import { CapitalChart } from './Simulator'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { useProgression } from '../hooks/useProgression'
 import { useProfile } from '../hooks/useProfile'
@@ -9,7 +10,7 @@ import { CHAPITRES } from '../content/chapitres'
 import { NIVEAUX } from '../content/niveaux'
 
 function ChapterIcon({ name, size = 16, color }) {
-  const Icon = LucideIcons[name]
+  const Icon = getIcon(name)
   if (!Icon) return null
   return <Icon size={size} color={color} strokeWidth={1.8} />
 }
@@ -32,7 +33,7 @@ export default function Dashboard() {
   const progression = chapitresValides.length
   const total       = 10
 
-  const { capital: simCapital, positions: simPos, historique: simHisto } = useSimulator(user)
+  const { capital: simCapital, positions: simPos, historique: simHisto, courbeCapital } = useSimulatorContext()
   const simPositions = simPos.length
   const simPerf      = ((simCapital - 10000) / 10000) * 100
   const simTrades    = simHisto.length
@@ -68,7 +69,7 @@ export default function Dashboard() {
             background: 'rgba(240,180,41,0.1)', border: '1px solid rgba(240,180,41,0.2)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            {(() => { const I = LucideIcons[niveau.icon]; return I ? <I size={26} color="var(--gold)" strokeWidth={1.5} /> : null })()}
+            {(() => { const I = getIcon(niveau.icon); return I ? <I size={26} color="var(--gold)" strokeWidth={1.5} /> : null })()}
           </div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 4 }}>
@@ -222,15 +223,20 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Barre perf */}
-            <div style={{ height: 2, background: 'var(--bg4)', borderRadius: 1, overflow: 'hidden' }}>
-              <div style={{
-                height: '100%',
-                width: `${Math.min(Math.abs(simPerf) * 5, 100)}%`,
-                background: simPerf >= 0 ? 'var(--green)' : 'var(--red)',
-                borderRadius: 1, transition: 'width 0.4s',
-              }} />
-            </div>
+            {/* Courbe capital */}
+            {courbeCapital?.length > 1
+              ? <CapitalChart data={courbeCapital} height={80} />
+              : (
+                <div style={{ height: 2, background: 'var(--bg4)', borderRadius: 1, overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${Math.min(Math.abs(simPerf) * 5, 100)}%`,
+                    background: simPerf >= 0 ? 'var(--green)' : 'var(--red)',
+                    borderRadius: 1, transition: 'width 0.4s',
+                  }} />
+                </div>
+              )
+            }
             {simPositions > 0 && (
               <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
                 <Wallet size={11} color="var(--gold)" />
@@ -262,7 +268,7 @@ export default function Dashboard() {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
           {NIVEAUX.map(nv => {
-            const I = LucideIcons[nv.icon]
+            const I = getIcon(nv.icon)
             const atteint = progression >= nv.requis
             return (
               <div key={nv.id} style={{ textAlign: 'center', flex: 1 }}>

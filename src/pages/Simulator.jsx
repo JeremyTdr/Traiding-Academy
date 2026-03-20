@@ -3,14 +3,14 @@ import { TrendingUp, RefreshCw, ChevronDown } from 'lucide-react'
 import CandleChart from '../components/simulator/CandleChart'
 import { ACTIFS, generateCandles, nextTick } from '../lib/priceGenerator'
 import { useAuth } from '../hooks/useAuth.jsx'
-import { useSimulator } from '../hooks/useSimulator'
+import { useSimulatorContext } from '../hooks/useSimulatorContext.jsx'
 
 const TICK_MS = 1500
 
 export default function Simulator() {
   const { user }                                              = useAuth()
-  const { capital, positions, historique, loading,
-          updateState, reset: resetSim }                      = useSimulator(user)
+  const { capital, positions, historique, courbeCapital,
+          loading, updateState, reset: resetSim }             = useSimulatorContext()
   const [actifId, setActifId]           = useState('AAPL')
   const [candles, setCandles]           = useState([])
   const [currentPrice, setCurrentPrice] = useState(null)
@@ -77,12 +77,12 @@ export default function Simulator() {
   }
 
   function fermerPosition(pos) {
-    const px           = pos.actif === actifId ? currentPrice : pos.prixEntree
-    const pnl          = (px - pos.prixEntree) * pos.qty
-    const newCapital   = capital + pos.prixEntree * pos.qty + pnl
-    const newPositions = positions.filter(x => x.id !== pos.id)
+    const px            = pos.actif === actifId ? currentPrice : pos.prixEntree
+    const pnl           = (px - pos.prixEntree) * pos.qty
+    const newCapital    = capital + pos.prixEntree * pos.qty + pnl
+    const newPositions  = positions.filter(x => x.id !== pos.id)
     const newHistorique = [{ actif: pos.actif, qty: pos.qty, entree: pos.prixEntree, sortie: px, pnl }, ...historique].slice(0, 20)
-    updateState(newCapital, newPositions, newHistorique)
+    updateState(newCapital, newPositions, newHistorique, true)
   }
 
   function reset() {
@@ -318,6 +318,14 @@ export default function Simulator() {
         </div>
       )}
 
+      {/* Courbe de capital */}
+      {courbeCapital.length > 1 && (
+        <div style={{ marginTop: 16, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, padding: '14px' }}>
+          <div style={sectionTitle}>Évolution du capital</div>
+          <CapitalChart data={courbeCapital} />
+        </div>
+      )}
+
       {/* Historique */}
       {historique.length > 0 && (
         <div style={{ marginTop: 16, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, padding: '14px' }}>
@@ -364,6 +372,103 @@ function StatCard({ label, value, accent, color = 'var(--text)' }) {
       <div style={{ fontSize: 16, fontWeight: 700, color, fontFamily: 'IBM Plex Mono, monospace' }}>
         {value}
       </div>
+    </div>
+  )
+}
+
+export function CapitalChart({ data, height = 120 }) {
+  const canvasRef = useRef(null)
+  const containerRef = useRef(null)
+  const [width, setWidth] = useState(600)
+
+  useEffect(() => {
+    const obs = new ResizeObserver(entries => {
+      const w = entries[0].contentRect.width
+      if (w > 0) setWidth(Math.floor(w))
+    })
+    if (containerRef.current) {
+      setWidth(Math.floor(containerRef.current.getBoundingClientRect().width))
+      obs.observe(containerRef.current)
+    }
+    return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!canvasRef.current || data.length < 2 || !width) return
+    const canvas = canvasRef.current
+    const ctx    = canvas.getContext('2d')
+    const dpr    = window.devicePixelRatio || 1
+    canvas.width  = width * dpr
+    canvas.height = height * dpr
+    canvas.style.width  = `${width}px`
+    canvas.style.height = `${height}px`
+    ctx.scale(dpr, dpr)
+
+    const PAD = { top: 10, right: 10, bottom: 24, left: 10 }
+    const W = width - PAD.left - PAD.right
+    const H = height - PAD.top - PAD.bottom
+
+    const values = data.map(d => d.valeur)
+    const minV = Math.min(...values) * 0.998
+    const maxV = Math.max(...values) * 1.002
+    const range = maxV - minV || 1
+
+    const toX = i => PAD.left + (i / (data.length - 1)) * W
+    const toY = v => PAD.top + H - ((v - minV) / range) * H
+
+    const isUp = values.at(-1) >= values[0]
+    const lineColor = isUp ? '#00c076' : '#ff4d4d'
+    const fillColor = isUp ? 'rgba(0,192,118,0.08)' : 'rgba(255,77,77,0.08)'
+
+    // Fond
+    ctx.fillStyle = '#060b14'
+    ctx.fillRect(0, 0, width, height)
+
+    // Ligne de base (capital initial)
+    const yBase = toY(10000)
+    ctx.setLineDash([3, 3])
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(PAD.left, yBase)
+    ctx.lineTo(width - PAD.right, yBase)
+    ctx.stroke()
+    ctx.setLineDash([])
+
+    // Zone remplie
+    ctx.beginPath()
+    ctx.moveTo(toX(0), toY(values[0]))
+    data.forEach((d, i) => ctx.lineTo(toX(i), toY(d.valeur)))
+    ctx.lineTo(toX(data.length - 1), height - PAD.bottom)
+    ctx.lineTo(toX(0), height - PAD.bottom)
+    ctx.closePath()
+    ctx.fillStyle = fillColor
+    ctx.fill()
+
+    // Courbe
+    ctx.beginPath()
+    data.forEach((d, i) => {
+      if (i === 0) ctx.moveTo(toX(i), toY(d.valeur))
+      else ctx.lineTo(toX(i), toY(d.valeur))
+    })
+    ctx.strokeStyle = lineColor
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+
+    // Labels valeur min/max/last
+    ctx.font = '9px IBM Plex Mono, monospace'
+    ctx.fillStyle = 'var(--text3, #445566)'
+    ctx.textAlign = 'left'
+    ctx.fillText(`${values[0].toFixed(0)} €`, PAD.left, height - 6)
+    ctx.textAlign = 'right'
+    ctx.fillStyle = lineColor
+    ctx.fillText(`${values.at(-1).toFixed(0)} €`, width - PAD.right, height - 6)
+
+  }, [data, width, height])
+
+  return (
+    <div ref={containerRef} style={{ width: '100%' }}>
+      <canvas ref={canvasRef} style={{ display: 'block' }} />
     </div>
   )
 }

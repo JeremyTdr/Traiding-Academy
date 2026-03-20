@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Zap, RotateCcw, ArrowRight, CheckCircle2, XCircle, ChevronRight } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { useProgression } from '../hooks/useProgression'
-import chapitres from '../content/chapitres/index'
+import { loadModule, getChapitresCharges } from '../content/chapitres/index'
 
 const MODES = [
   { id: 'all',      label: 'Tous les chapitres', desc: 'Questions sur l\'ensemble du programme' },
@@ -20,7 +20,7 @@ function shuffleArray(arr) {
 }
 
 function buildQuestions(chapitresValides, mode) {
-  const pool = chapitres
+  const pool = getChapitresCharges()
     .filter(ch => mode === 'all' || chapitresValides.includes(ch.id))
     .flatMap(ch => ch.qcm.map(q => ({ ...q, chapitre: ch.titre, chapitreId: ch.id })))
   return shuffleArray(pool).slice(0, NB_QUESTIONS)
@@ -30,6 +30,7 @@ export default function Quiz() {
   const { user }                      = useAuth()
   const { chapitresValides }          = useProgression(user)
   const [mode, setMode]               = useState(null)       // null = écran d'accueil
+  const [pret, setPret]               = useState(false)
   const [questions, setQuestions]     = useState([])
   const [index, setIndex]             = useState(0)
   const [selected, setSelected]       = useState(null)
@@ -38,7 +39,19 @@ export default function Quiz() {
   const [termine, setTermine]         = useState(false)
   const [history, setHistory]         = useState([])         // { correct, expl, chapitre }
 
+  useEffect(() => {
+    Promise.all([loadModule(2), loadModule(3), loadModule(4)]).then(() => setPret(true))
+  }, [])
+
   const hasValides = chapitresValides.length > 0
+
+  if (!pret) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 0', gap: 10, color: 'var(--text3)', fontSize: 13 }}>
+      <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border)', borderTopColor: 'var(--cyan)', animation: 'spin 0.7s linear infinite' }} />
+      Chargement des questions…
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
 
   function demarrer(m) {
     const qs = buildQuestions(chapitresValides, m)

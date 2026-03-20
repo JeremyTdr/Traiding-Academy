@@ -1,5 +1,5 @@
-import * as LucideIcons from 'lucide-react'
 import { CheckCircle, Lock, ChevronRight } from 'lucide-react'
+import { getIcon } from '../../lib/icons'
 import { CHAPITRES } from '../../content/chapitres'
 
 const MODULE_COLORS = {
@@ -10,7 +10,7 @@ const MODULE_COLORS = {
 }
 
 function ChapterIcon({ name, size = 16, color }) {
-  const Icon = LucideIcons[name]
+  const Icon = getIcon(name)
   if (!Icon) return null
   return <Icon size={size} color={color} strokeWidth={1.8} />
 }
@@ -29,7 +29,7 @@ export default function ChapitresList({ chapitresValides, onOuvrir }) {
           Formation
         </h1>
         <p style={{ color: 'var(--text2)', fontSize: 13 }}>
-          <span style={{ fontFamily: 'IBM Plex Mono, monospace', color: 'var(--cyan)' }}>{chapitresValides.length}/10</span>
+          <span style={{ fontFamily: 'IBM Plex Mono, monospace', color: 'var(--cyan)' }}>{chapitresValides.length}/{CHAPITRES.length}</span>
           {' '}chapitres validés
         </p>
       </div>
@@ -58,10 +58,12 @@ export default function ChapitresList({ chapitresValides, onOuvrir }) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {chapitres.map(ch => {
-                const valide          = chapitresValides.includes(ch.id)
-                const precedentOk     = ch.id === 1 || chapitresValides.includes(ch.id - 1)
-                const verrouilleNiveau = ch.verrou && chapitresValides.length < (ch.verrou * 2)
-                const accessible      = precedentOk && !verrouilleNiveau
+                const valide           = chapitresValides.includes(ch.id)
+                const precedentOk      = ch.id === 1 || chapitresValides.includes(ch.id - 1)
+                const requis           = ch.verrou ? ch.verrou * 2 : 0
+                const verrouilleNiveau = ch.verrou && chapitresValides.length < requis
+                const accessible       = precedentOk && !verrouilleNiveau
+                const manquants        = verrouilleNiveau ? requis - chapitresValides.length : 0
 
                 return (
                   <button
@@ -109,7 +111,9 @@ export default function ChapitresList({ chapitresValides, onOuvrir }) {
                         {ch.titre}
                       </div>
                       {ch.verrou && !accessible && (
-                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>Débloqué au niveau Trader</div>
+                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>
+                          Niveau Trader — encore {manquants} chapitre{manquants > 1 ? 's' : ''} à valider
+                        </div>
                       )}
                     </div>
 

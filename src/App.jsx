@@ -1,14 +1,17 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import { AuthProvider, useAuth } from './hooks/useAuth.jsx'
+import { SimulatorProvider } from './hooks/useSimulatorContext.jsx'
 import AppLayout  from './components/layout/AppLayout'
 import Auth       from './pages/Auth'
-import Dashboard  from './pages/Dashboard'
-import Cours      from './pages/Cours'
-import Quiz       from './pages/Quiz'
-import Simulator  from './pages/Simulator'
-import Niveaux    from './pages/Niveaux'
-import Profil     from './pages/Profil'
-import NotFound   from './pages/NotFound'
+
+const Dashboard  = lazy(() => import('./pages/Dashboard'))
+const Cours      = lazy(() => import('./pages/Cours'))
+const Quiz       = lazy(() => import('./pages/Quiz'))
+const Simulator  = lazy(() => import('./pages/Simulator'))
+const Niveaux    = lazy(() => import('./pages/Niveaux'))
+const Profil     = lazy(() => import('./pages/Profil'))
+const NotFound   = lazy(() => import('./pages/NotFound'))
 
 function LoadingScreen() {
   return (
@@ -42,18 +45,20 @@ function AppRoutes() {
   if (loading) return <LoadingScreen />
 
   return (
-    <Routes>
-      <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
-      <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route path="/"          element={<Dashboard />} />
-        <Route path="/cours"     element={<Cours />} />
-        <Route path="/quiz"      element={<Quiz />} />
-        <Route path="/simulator" element={<Simulator />} />
-        <Route path="/niveaux"   element={<Niveaux />} />
-        <Route path="/profil"    element={<Profil />} />
-      </Route>
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
+        <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/"          element={<Dashboard />} />
+          <Route path="/cours"     element={<Cours />} />
+          <Route path="/quiz"      element={<Quiz />} />
+          <Route path="/simulator" element={<Simulator />} />
+          <Route path="/niveaux"   element={<Niveaux />} />
+          <Route path="/profil"    element={<Profil />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   )
 }
 
@@ -61,7 +66,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <SimulatorProvider>
+          <AppRoutes />
+        </SimulatorProvider>
       </AuthProvider>
     </BrowserRouter>
   )

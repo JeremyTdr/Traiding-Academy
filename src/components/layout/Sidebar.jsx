@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import * as LucideIcons from 'lucide-react'
 import { LayoutDashboard, BookOpen, Zap, LineChart, Trophy, LogOut, User } from 'lucide-react'
+import { getIcon } from '../../lib/icons'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { useProgression } from '../../hooks/useProgression'
 import { useProfile } from '../../hooks/useProfile'
@@ -121,7 +121,7 @@ export default function Sidebar() {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, fontSize: 11, color: 'var(--text3)' }}>
           <span style={{ color: 'var(--gold)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-            {(() => { const I = LucideIcons[niveau.icon]; return I ? <I size={11} color="var(--gold)" strokeWidth={2.5} /> : null })()}
+            {(() => { const I = getIcon(niveau.icon); return I ? <I size={11} color="var(--gold)" strokeWidth={2.5} /> : null })()}
             {niveau.nom}
           </span>
           <span style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{chapitresValides.length}/10</span>

@@ -1,130 +1,191 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
 
-const PADDING = { top: 20, right: 60, bottom: 40, left: 10 }
+const PADDING = { top: 20, right: 60, bottom: 40, left: 10 };
 
 export default function CandleChart({ candles, currentPrice, width, height }) {
-  const canvasRef = useRef(null)
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    if (!candles?.length || !canvasRef.current) return
-    const canvas = canvasRef.current
-    const ctx    = canvas.getContext('2d')
-    const dpr    = window.devicePixelRatio || 1
+    if (!candles?.length || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
 
-    canvas.width  = width  * dpr
-    canvas.height = height * dpr
-    canvas.style.width  = `${width}px`
-    canvas.style.height = `${height}px`
-    ctx.scale(dpr, dpr)
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.scale(dpr, dpr);
 
-    const W = width  - PADDING.left - PADDING.right
-    const H = height - PADDING.top  - PADDING.bottom
+    const W = width - PADDING.left - PADDING.right;
+    const H = height - PADDING.top - PADDING.bottom;
 
-    const visible  = candles
-    const nb       = visible.length
-    const CANDLE_GAP = Math.max(1, Math.floor(W / nb * 0.25))
-    const CANDLE_W   = Math.floor((W - CANDLE_GAP * (nb - 1)) / nb)
+    const visible = candles;
+    const nb = visible.length;
+    const CANDLE_GAP = Math.max(1, Math.floor((W / nb) * 0.25));
+    const CANDLE_W = Math.floor((W - CANDLE_GAP * (nb - 1)) / nb);
 
-    const prices = visible.flatMap(c => [c.high, c.low])
-    if (currentPrice) prices.push(currentPrice)
-    const minP = Math.min(...prices) * 0.999
-    const maxP = Math.max(...prices) * 1.001
-    const range = maxP - minP
+    const prices = visible.flatMap((c) => [c.high, c.low]);
+    if (currentPrice) prices.push(currentPrice);
+    const minP = Math.min(...prices) * 0.999;
+    const maxP = Math.max(...prices) * 1.001;
+    const range = maxP - minP;
 
-    function toY(p) { return PADDING.top + H - ((p - minP) / range) * H }
-    function toX(i) { return PADDING.left + i * (CANDLE_W + CANDLE_GAP) + CANDLE_W / 2 + CANDLE_GAP / 2 }
+    function toY(p) {
+      return PADDING.top + H - ((p - minP) / range) * H;
+    }
+    function toX(i) {
+      return (
+        PADDING.left +
+        i * (CANDLE_W + CANDLE_GAP) +
+        CANDLE_W / 2 +
+        CANDLE_GAP / 2
+      );
+    }
 
     // Fond
-    ctx.fillStyle = '#060b14'
-    ctx.fillRect(0, 0, width, height)
+    ctx.fillStyle = "#060b14";
+    ctx.fillRect(0, 0, width, height);
 
     // Grille horizontale
-    const gridLines = 5
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)'
-    ctx.lineWidth = 1
+    const gridLines = 5;
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.lineWidth = 1;
     for (let i = 0; i <= gridLines; i++) {
-      const y = PADDING.top + (i / gridLines) * H
-      ctx.beginPath()
-      ctx.moveTo(PADDING.left, y)
-      ctx.lineTo(width - PADDING.right, y)
-      ctx.stroke()
+      const y = PADDING.top + (i / gridLines) * H;
+      ctx.beginPath();
+      ctx.moveTo(PADDING.left, y);
+      ctx.lineTo(width - PADDING.right, y);
+      ctx.stroke();
 
-      const price = maxP - (i / gridLines) * range
-      ctx.fillStyle = '#445566'
-      ctx.font = '10px IBM Plex Mono, monospace'
-      ctx.textAlign = 'left'
-      ctx.fillText(price.toFixed(2), width - PADDING.right + 4, y + 3)
+      const price = maxP - (i / gridLines) * range;
+      ctx.fillStyle = "#445566";
+      ctx.font = "10px IBM Plex Mono, monospace";
+      ctx.textAlign = "left";
+      ctx.fillText(price.toFixed(2), width - PADDING.right + 4, y + 3);
     }
+
+    // Moyennes mobiles
+    function calcMM(periode) {
+      return visible.map((_, i) => {
+        if (i < periode - 1) return null;
+        const slice = visible.slice(i - periode + 1, i + 1);
+        return slice.reduce((sum, c) => sum + c.close, 0) / periode;
+      });
+    }
+
+    const mm7 = calcMM(7);
+    const mm20 = calcMM(20);
+
+    function drawMM(values, color) {
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([]);
+      let started = false;
+      values.forEach((v, i) => {
+        if (v === null) return;
+        const x = toX(i);
+        const y = toY(v);
+        if (!started) {
+          ctx.moveTo(x, y);
+          started = true;
+        } else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    drawMM(mm7, "rgba(255, 200, 40, 0.75)"); // MM7  — or
+    drawMM(mm20, "rgba(120, 160, 255, 0.75)"); // MM20 — bleu
+
+    // Légende MM
+    ctx.font = "bold 11px IBM Plex Mono, monospace";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(255, 200, 40, 0.9)";
+    ctx.fillText("- MM7", PADDING.left + 4, PADDING.top + 14);
+    ctx.fillStyle = "rgba(120, 160, 255, 0.9)";
+    ctx.fillText("- MM20", PADDING.left + 4, PADDING.top + 28);
 
     // Bougies
     visible.forEach((c, i) => {
-      const x     = toX(i)
-      const yOpen  = toY(c.open)
-      const yClose = toY(c.close)
-      const yHigh  = toY(c.high)
-      const yLow   = toY(c.low)
-      const isBull = c.close >= c.open
-      const color  = isBull ? '#00c076' : '#ff4d4d'
-      const half   = CANDLE_W / 2
+      const x = toX(i);
+      const yOpen = toY(c.open);
+      const yClose = toY(c.close);
+      const yHigh = toY(c.high);
+      const yLow = toY(c.low);
+      const isBull = c.close >= c.open;
+      const color = isBull ? "#00c076" : "#ff4d4d";
+      const half = CANDLE_W / 2;
 
       // Mèche
-      ctx.strokeStyle = color
-      ctx.lineWidth = 1.5
-      ctx.beginPath()
-      ctx.moveTo(x, yHigh)
-      ctx.lineTo(x, Math.min(yOpen, yClose))
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.moveTo(x, yLow)
-      ctx.lineTo(x, Math.max(yOpen, yClose))
-      ctx.stroke()
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, yHigh);
+      ctx.lineTo(x, Math.min(yOpen, yClose));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, yLow);
+      ctx.lineTo(x, Math.max(yOpen, yClose));
+      ctx.stroke();
 
       // Corps
-      const bodyTop = Math.min(yOpen, yClose)
-      const bodyH   = Math.max(Math.abs(yClose - yOpen), 1)
-      ctx.fillStyle = isBull ? 'rgba(0,192,118,0.85)' : 'rgba(255,77,77,0.85)'
-      ctx.fillRect(x - half, bodyTop, CANDLE_W, bodyH)
-    })
+      const bodyTop = Math.min(yOpen, yClose);
+      const bodyH = Math.max(Math.abs(yClose - yOpen), 1);
+      ctx.fillStyle = isBull ? "rgba(0,192,118,0.85)" : "rgba(255,77,77,0.85)";
+      ctx.fillRect(x - half, bodyTop, CANDLE_W, bodyH);
+    });
 
     // Ligne prix courant
     if (currentPrice) {
-      const y = toY(currentPrice)
-      const isBull = currentPrice >= (visible.at(-1)?.open ?? currentPrice)
-      const lineColor = isBull ? '#00c076' : '#ff4d4d'
+      const y = toY(currentPrice);
+      const isBull = currentPrice >= (visible.at(-1)?.open ?? currentPrice);
+      const lineColor = isBull ? "#00c076" : "#ff4d4d";
 
-      ctx.setLineDash([4, 4])
-      ctx.strokeStyle = lineColor
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(PADDING.left, y)
-      ctx.lineTo(width - PADDING.right, y)
-      ctx.stroke()
-      ctx.setLineDash([])
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(PADDING.left, y);
+      ctx.lineTo(width - PADDING.right, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
 
       // Badge prix
-      ctx.fillStyle = lineColor
-      ctx.fillRect(width - PADDING.right, y - 9, PADDING.right - 2, 18)
-      ctx.fillStyle = '#000'
-      ctx.font = 'bold 10px IBM Plex Mono, monospace'
-      ctx.textAlign = 'center'
-      ctx.fillText(currentPrice.toFixed(2), width - PADDING.right / 2 - 1, y + 4)
+      ctx.fillStyle = lineColor;
+      ctx.fillRect(width - PADDING.right, y - 9, PADDING.right - 2, 18);
+      ctx.fillStyle = "#000";
+      ctx.font = "bold 10px IBM Plex Mono, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        currentPrice.toFixed(2),
+        width - PADDING.right / 2 - 1,
+        y + 4,
+      );
     }
 
     // Axe X — dates
-    ctx.fillStyle = '#445566'
-    ctx.font = '9px IBM Plex Mono, monospace'
-    ctx.textAlign = 'center'
-    const step = Math.max(1, Math.floor(visible.length / 6))
-    const lastIdx = visible.length - 1
+    ctx.fillStyle = "#445566";
+    ctx.font = "9px IBM Plex Mono, monospace";
+    ctx.textAlign = "center";
+    const step = Math.max(1, Math.floor(visible.length / 6));
+    const lastIdx = visible.length - 1;
     visible.forEach((c, i) => {
       if ((i % step === 0 || i === lastIdx) && c.date) {
-        const x = toX(i)
-        const label = c.date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
-        ctx.fillText(label, x, height - 6)
+        const x = toX(i);
+        const label = c.date.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+        });
+        ctx.fillText(label, x, height - 6);
       }
-    })
+    });
+  }, [candles, currentPrice, width, height]);
 
-  }, [candles, currentPrice, width, height])
-
-  return <canvas ref={canvasRef} style={{ display: 'block', borderRadius: '6px 6px 0 0' }} />
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ display: "block", borderRadius: "6px 6px 0 0" }}
+    />
+  );
 }
