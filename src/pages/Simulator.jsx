@@ -42,7 +42,7 @@ export default function Simulator() {
   const tick = useCallback(() => {
     setCurrentPrice(prev => {
       if (prev === null) return prev
-      return nextTick(prev, actif.prixBase * 0.00003)
+      return nextTick(prev, actif.id)
     })
   }, [actif])
 
