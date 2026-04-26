@@ -15,8 +15,10 @@ export default function Simulator() {
   const [candles, setCandles]           = useState([])
   const [currentPrice, setCurrentPrice] = useState(null)
   const [qte, setQte]                   = useState(1)
+  const [slPct, setSlPct]               = useState('')
+  const [tpPct, setTpPct]               = useState('')
   const [confirmReset, setConfirmReset] = useState(false)
-  const [chartSize, setChartSize]       = useState({ w: 600, h: 340 })
+  const [chartSize, setChartSize]       = useState({ w: 600, h: 300 })
   const chartContainerRef               = useRef(null)
 
   const actif = ACTIFS.find(a => a.id === actifId)
@@ -25,7 +27,7 @@ export default function Simulator() {
   useEffect(() => {
     const obs = new ResizeObserver(entries => {
       const { width } = entries[0].contentRect
-      if (width > 0) setChartSize({ w: Math.floor(width), h: 340 })
+      if (width > 0) setChartSize({ w: Math.floor(width), h: 300 })
     })
     if (chartContainerRef.current) obs.observe(chartContainerRef.current)
     return () => obs.disconnect()
@@ -38,7 +40,7 @@ export default function Simulator() {
     setCurrentPrice(c.at(-1).close)
   }, [actifId])
 
-  // Tick live
+  // Tick live + vérification SL/TP
   const tick = useCallback(() => {
     setCurrentPrice(prev => {
       if (prev === null) return prev
@@ -66,13 +68,48 @@ export default function Simulator() {
     })
   }, [currentPrice])
 
+  // Déclenchement automatique SL/TP
+  useEffect(() => {
+    if (currentPrice === null || positions.length === 0) return
+    let newPositions  = [...positions]
+    let newCapital    = capital
+    let newHistorique = [...historique]
+    let triggered     = false
+
+    positions.forEach(pos => {
+      const px = pos.actif === actifId ? currentPrice : pos.prixEntree
+      const slPrice = pos.sl ? pos.prixEntree * (1 - pos.sl / 100) : null
+      const tpPrice = pos.tp ? pos.prixEntree * (1 + pos.tp / 100) : null
+
+      const hitSL = slPrice && px <= slPrice
+      const hitTP = tpPrice && px >= tpPrice
+
+      if (hitSL || hitTP) {
+        const pnl = (px - pos.prixEntree) * pos.qty
+        newCapital += pos.prixEntree * pos.qty + pnl
+        newPositions = newPositions.filter(x => x.id !== pos.id)
+        newHistorique = [
+          { actif: pos.actif, qty: pos.qty, entree: pos.prixEntree, sortie: px, pnl, raison: hitSL ? 'Stop-Loss' : 'Take-Profit' },
+          ...newHistorique
+        ].slice(0, 20)
+        triggered = true
+      }
+    })
+
+    if (triggered) updateState(newCapital, newPositions, newHistorique, true)
+  }, [currentPrice])
+
   // ── Actions ────────────────────────────────────────────
   function acheter() {
     if (!currentPrice || qte <= 0) return
     const cout = currentPrice * qte
     if (cout > capital) return
     const newCapital   = capital - cout
-    const newPositions = [...positions, { id: Date.now(), actif: actifId, qty: qte, prixEntree: currentPrice }]
+    const newPositions = [...positions, {
+      id: Date.now(), actif: actifId, qty: qte, prixEntree: currentPrice,
+      sl: slPct !== '' ? parseFloat(slPct) : null,
+      tp: tpPct !== '' ? parseFloat(tpPct) : null,
+    }]
     updateState(newCapital, newPositions, historique)
   }
 
@@ -81,7 +118,7 @@ export default function Simulator() {
     const pnl           = (px - pos.prixEntree) * pos.qty
     const newCapital    = capital + pos.prixEntree * pos.qty + pnl
     const newPositions  = positions.filter(x => x.id !== pos.id)
-    const newHistorique = [{ actif: pos.actif, qty: pos.qty, entree: pos.prixEntree, sortie: px, pnl }, ...historique].slice(0, 20)
+    const newHistorique = [{ actif: pos.actif, qty: pos.qty, entree: pos.prixEntree, sortie: px, pnl, raison: 'Manuel' }, ...historique].slice(0, 20)
     updateState(newCapital, newPositions, newHistorique, true)
   }
 
@@ -106,6 +143,11 @@ export default function Simulator() {
   const perfGlobale = ((capitalTotal - 10000) / 10000) * 100
   const coutOrdre   = currentPrice ? currentPrice * qte : 0
   const canBuy      = coutOrdre <= capital && qte > 0 && !!currentPrice
+
+  // Statistiques trades
+  const winTrades  = historique.filter(t => t.pnl >= 0).length
+  const winRate    = historique.length > 0 ? Math.round((winTrades / historique.length) * 100) : null
+  const pnlTotal   = historique.reduce((acc, t) => acc + t.pnl, 0)
 
   if (loading) return <div style={{ color: 'var(--text3)', fontSize: 13, padding: '40px 0' }}>Chargement…</div>
 
@@ -169,7 +211,13 @@ export default function Simulator() {
           </div>
 
           <div ref={chartContainerRef} style={{ width: '100%' }}>
-            <CandleChart candles={candles} currentPrice={currentPrice} width={chartSize.w} height={chartSize.h} />
+            <CandleChart
+              candles={candles}
+              currentPrice={currentPrice}
+              width={chartSize.w}
+              height={chartSize.h}
+              positions={positions.filter(p => p.actif === actifId)}
+            />
           </div>
         </div>
 
@@ -190,19 +238,14 @@ export default function Simulator() {
               </div>
             </div>
 
-            <div style={{ marginBottom: 14 }}>
+            <div style={{ marginBottom: 10 }}>
               <label style={labelStyle}>Quantité</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button onClick={() => setQte(q => Math.max(1, q - 1))} style={qteBtn}>−</button>
                 <input
                   type="number" min={1} value={qte}
                   onChange={e => setQte(Math.max(1, parseInt(e.target.value) || 1))}
-                  style={{
-                    flex: 1, padding: '7px 10px', textAlign: 'center',
-                    background: 'var(--bg3)', border: '1px solid var(--border)',
-                    borderRadius: 6, color: 'var(--text)', fontSize: 14,
-                    fontFamily: 'IBM Plex Mono, monospace',
-                  }}
+                  style={inputStyle}
                 />
                 <button onClick={() => setQte(q => q + 1)} style={qteBtn}>+</button>
               </div>
@@ -211,6 +254,44 @@ export default function Simulator() {
                 {!canBuy && qte > 0 && currentPrice && <span style={{ color: 'var(--red)' }}> · Fonds insuffisants</span>}
               </div>
             </div>
+
+            {/* SL / TP */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+              <div>
+                <label style={{ ...labelStyle, color: 'var(--red)' }}>Stop-Loss %</label>
+                <input
+                  type="number" min={0.1} max={50} step={0.5} placeholder="ex: 3"
+                  value={slPct}
+                  onChange={e => setSlPct(e.target.value)}
+                  style={{ ...inputStyle, borderColor: slPct ? 'rgba(255,77,77,0.4)' : undefined }}
+                />
+                {slPct && currentPrice && (
+                  <div style={{ fontSize: 10, color: 'var(--red)', marginTop: 3, fontFamily: 'IBM Plex Mono, monospace' }}>
+                    → {(currentPrice * (1 - slPct / 100)).toFixed(2)} €
+                  </div>
+                )}
+              </div>
+              <div>
+                <label style={{ ...labelStyle, color: 'var(--green)' }}>Take-Profit %</label>
+                <input
+                  type="number" min={0.1} max={200} step={0.5} placeholder="ex: 6"
+                  value={tpPct}
+                  onChange={e => setTpPct(e.target.value)}
+                  style={{ ...inputStyle, borderColor: tpPct ? 'rgba(0,192,118,0.4)' : undefined }}
+                />
+                {tpPct && currentPrice && (
+                  <div style={{ fontSize: 10, color: 'var(--green)', marginTop: 3, fontFamily: 'IBM Plex Mono, monospace' }}>
+                    → {(currentPrice * (1 + tpPct / 100)).toFixed(2)} €
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {slPct && tpPct && (
+              <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 10, fontFamily: 'IBM Plex Mono, monospace', background: 'var(--bg3)', borderRadius: 5, padding: '5px 8px' }}>
+                R/R : 1 : {(parseFloat(tpPct) / parseFloat(slPct)).toFixed(2)}
+              </div>
+            )}
 
             <button
               onClick={acheter}
@@ -243,6 +324,8 @@ export default function Simulator() {
                   const pnl  = (px - p.prixEntree) * p.qty
                   const pct  = ((px - p.prixEntree) / p.prixEntree) * 100
                   const isUp = pnl >= 0
+                  const slPrice = p.sl ? p.prixEntree * (1 - p.sl / 100) : null
+                  const tpPrice = p.tp ? p.prixEntree * (1 + p.tp / 100) : null
                   return (
                     <div key={p.id} style={{
                       padding: '10px 12px', background: 'var(--bg3)', borderRadius: 6,
@@ -256,27 +339,44 @@ export default function Simulator() {
                           {isUp ? '+' : ''}{pnl.toFixed(2)} €
                         </span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 10, color: 'var(--text3)', fontFamily: 'IBM Plex Mono, monospace' }}>
-                          {p.prixEntree.toFixed(2)} · {isUp ? '+' : ''}{pct.toFixed(2)}%
-                        </span>
-                        <button
-                          onClick={() => fermerPosition(p)}
-                          style={{
-                            padding: '3px 8px', background: 'transparent', cursor: 'pointer',
-                            border: `1px solid ${isUp ? 'rgba(0,192,118,0.3)' : 'rgba(255,77,77,0.3)'}`,
-                            borderRadius: 4, color: isUp ? 'var(--green)' : 'var(--red)', fontSize: 10,
-                          }}
-                        >
-                          Fermer
-                        </button>
+                      <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: 'IBM Plex Mono, monospace', marginBottom: 4 }}>
+                        Entrée : {p.prixEntree.toFixed(2)} · {isUp ? '+' : ''}{pct.toFixed(2)}%
                       </div>
+                      {(slPrice || tpPrice) && (
+                        <div style={{ fontSize: 10, fontFamily: 'IBM Plex Mono, monospace', marginBottom: 6, display: 'flex', gap: 8 }}>
+                          {slPrice && <span style={{ color: 'var(--red)' }}>SL {slPrice.toFixed(2)}</span>}
+                          {tpPrice && <span style={{ color: 'var(--green)' }}>TP {tpPrice.toFixed(2)}</span>}
+                        </div>
+                      )}
+                      <button
+                        onClick={() => fermerPosition(p)}
+                        style={{
+                          padding: '3px 8px', background: 'transparent', cursor: 'pointer',
+                          border: `1px solid ${isUp ? 'rgba(0,192,118,0.3)' : 'rgba(255,77,77,0.3)'}`,
+                          borderRadius: 4, color: isUp ? 'var(--green)' : 'var(--red)', fontSize: 10,
+                        }}
+                      >
+                        Fermer manuellement
+                      </button>
                     </div>
                   )
                 })}
               </div>
             )}
           </div>
+
+          {/* Stats trades */}
+          {historique.length > 0 && (
+            <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, padding: '14px' }}>
+              <div style={sectionTitle}>Statistiques</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <MiniStat label="Trades" value={historique.length} />
+                <MiniStat label="Win rate" value={winRate !== null ? `${winRate}%` : '—'} color={winRate >= 50 ? 'var(--green)' : 'var(--red)'} />
+                <MiniStat label="P&L réalisé" value={`${pnlTotal >= 0 ? '+' : ''}${pnlTotal.toFixed(2)} €`} color={pnlTotal >= 0 ? 'var(--green)' : 'var(--red)'} />
+                <MiniStat label="Meilleur trade" value={`+${Math.max(...historique.map(t => t.pnl)).toFixed(2)} €`} color="var(--green)" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -300,9 +400,7 @@ export default function Simulator() {
               Le capital sera réinitialisé à 10 000 €.
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-              <button className="btn-ghost" onClick={() => setConfirmReset(false)}>
-                Annuler
-              </button>
+              <button className="btn-ghost" onClick={() => setConfirmReset(false)}>Annuler</button>
               <button
                 onClick={reset}
                 style={{
@@ -334,7 +432,7 @@ export default function Simulator() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, fontFamily: 'IBM Plex Mono, monospace' }}>
               <thead>
                 <tr>
-                  {['Actif', 'Qté', 'Entrée', 'Sortie', 'P&L'].map(h => (
+                  {['Actif', 'Qté', 'Entrée', 'Sortie', 'Raison', 'P&L'].map(h => (
                     <th key={h} style={{ textAlign: 'left', padding: '4px 10px', fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                   ))}
                 </tr>
@@ -346,6 +444,15 @@ export default function Simulator() {
                     <td style={{ padding: '7px 10px', color: 'var(--text2)' }}>{t.qty}</td>
                     <td style={{ padding: '7px 10px', color: 'var(--text2)' }}>{t.entree.toFixed(2)}</td>
                     <td style={{ padding: '7px 10px', color: 'var(--text2)' }}>{t.sortie.toFixed(2)}</td>
+                    <td style={{ padding: '7px 10px' }}>
+                      <span style={{
+                        fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                        background: t.raison === 'Stop-Loss' ? 'rgba(255,77,77,0.15)' : t.raison === 'Take-Profit' ? 'rgba(0,192,118,0.15)' : 'rgba(255,255,255,0.06)',
+                        color: t.raison === 'Stop-Loss' ? 'var(--red)' : t.raison === 'Take-Profit' ? 'var(--green)' : 'var(--text3)',
+                      }}>
+                        {t.raison ?? 'Manuel'}
+                      </span>
+                    </td>
                     <td style={{ padding: '7px 10px', fontWeight: 700, color: t.pnl >= 0 ? 'var(--green)' : 'var(--red)' }}>
                       {t.pnl >= 0 ? '+' : ''}{t.pnl.toFixed(2)} €
                     </td>
@@ -372,6 +479,15 @@ function StatCard({ label, value, accent, color = 'var(--text)' }) {
       <div style={{ fontSize: 16, fontWeight: 700, color, fontFamily: 'IBM Plex Mono, monospace' }}>
         {value}
       </div>
+    </div>
+  )
+}
+
+function MiniStat({ label, value, color = 'var(--text)' }) {
+  return (
+    <div style={{ background: 'var(--bg3)', borderRadius: 6, padding: '8px 10px' }}>
+      <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color, fontFamily: 'IBM Plex Mono, monospace' }}>{value}</div>
     </div>
   )
 }
@@ -420,11 +536,9 @@ export function CapitalChart({ data, height = 120 }) {
     const lineColor = isUp ? '#00c076' : '#ff4d4d'
     const fillColor = isUp ? 'rgba(0,192,118,0.08)' : 'rgba(255,77,77,0.08)'
 
-    // Fond
     ctx.fillStyle = '#060b14'
     ctx.fillRect(0, 0, width, height)
 
-    // Ligne de base (capital initial)
     const yBase = toY(10000)
     ctx.setLineDash([3, 3])
     ctx.strokeStyle = 'rgba(255,255,255,0.08)'
@@ -435,7 +549,6 @@ export function CapitalChart({ data, height = 120 }) {
     ctx.stroke()
     ctx.setLineDash([])
 
-    // Zone remplie
     ctx.beginPath()
     ctx.moveTo(toX(0), toY(values[0]))
     data.forEach((d, i) => ctx.lineTo(toX(i), toY(d.valeur)))
@@ -445,7 +558,6 @@ export function CapitalChart({ data, height = 120 }) {
     ctx.fillStyle = fillColor
     ctx.fill()
 
-    // Courbe
     ctx.beginPath()
     data.forEach((d, i) => {
       if (i === 0) ctx.moveTo(toX(i), toY(d.valeur))
@@ -455,9 +567,8 @@ export function CapitalChart({ data, height = 120 }) {
     ctx.lineWidth = 1.5
     ctx.stroke()
 
-    // Labels valeur min/max/last
     ctx.font = '9px IBM Plex Mono, monospace'
-    ctx.fillStyle = 'var(--text3, #445566)'
+    ctx.fillStyle = '#445566'
     ctx.textAlign = 'left'
     ctx.fillText(`${values[0].toFixed(0)} €`, PAD.left, height - 6)
     ctx.textAlign = 'right'
@@ -481,6 +592,13 @@ const sectionTitle = {
 const labelStyle = {
   display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--text3)',
   textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4,
+}
+
+const inputStyle = {
+  flex: 1, width: '100%', padding: '7px 10px', textAlign: 'center',
+  background: 'var(--bg3)', border: '1px solid var(--border)',
+  borderRadius: 6, color: 'var(--text)', fontSize: 13,
+  fontFamily: 'IBM Plex Mono, monospace', boxSizing: 'border-box',
 }
 
 const qteBtn = {
