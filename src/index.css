@@ -89,6 +89,52 @@ html, body, #root {
   padding: 1px 6px;
   font-weight: 500;
   font-size: 0.92em;
+  cursor: help;
+  position: relative;
+  border-bottom: 1px dashed rgba(167,139,250,0.5);
+}
+.theory-body .term[data-def]::after {
+  content: attr(data-def);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a2535;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text2);
+  line-height: 1.5;
+  width: 220px;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.theory-body .term[data-def]::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border2);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 101;
+}
+.theory-body .term[data-def]:hover::after,
+.theory-body .term[data-def]:hover::before {
+  opacity: 1;
+}
+.theory-body svg {
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 .theory-body .formula {
   background: var(--bg3);

@@ -37,6 +37,34 @@ export default {
 </div>
 
 <h2>3. Figures chartistes classiques</h2>
+
+<svg viewBox="0 0 500 175" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <!-- Double Top -->
+  <text x="62" y="14" font-size="10" fill="#ff4d4d" font-family="IBM Plex Mono" text-anchor="middle">DOUBLE TOP ↓</text>
+  <polyline points="10,140 30,100 50,60 70,100 85,140 100,60 120,100 140,140" fill="none" stroke="#ff4d4d" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="10" y1="140" x2="140" y2="140" stroke="#ff4d4d" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+  <text x="10" y="155" font-size="8" fill="#ff4d4d" font-family="IBM Plex Sans" opacity="0.8">Ligne de cou cassée → ↓</text>
+
+  <!-- Head & Shoulders -->
+  <text x="255" y="14" font-size="10" fill="#ff4d4d" font-family="IBM Plex Mono" text-anchor="middle">HEAD & SHOULDERS ↓</text>
+  <polyline points="175,140 195,110 215,125 235,70 255,125 275,110 295,140" fill="none" stroke="#ff4d4d" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="175" y1="140" x2="295" y2="140" stroke="#ff4d4d" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+  <text x="215" y="80" font-size="8" fill="#ff4d4d" font-family="IBM Plex Sans">Tête</text>
+  <text x="188" y="108" font-size="8" fill="#ff4d4d" font-family="IBM Plex Sans" opacity="0.7">É.</text>
+  <text x="273" y="108" font-size="8" fill="#ff4d4d" font-family="IBM Plex Sans" opacity="0.7">É.</text>
+
+  <!-- Triangle ascendant -->
+  <text x="385" y="14" font-size="10" fill="#00c076" font-family="IBM Plex Mono" text-anchor="middle">TRIANGLE ASC. ↑</text>
+  <line x1="330" y1="60" x2="460" y2="60" stroke="#ff4d4d" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+  <polyline points="330,140 350,105 370,85 390,75 410,65 430,60" fill="none" stroke="#00c076" stroke-width="1.5" stroke-linejoin="round"/>
+  <polyline points="330,140 350,60 370,120 390,60 410,100 430,60" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linejoin="round"/>
+  <text x="440" y="56" font-size="8" fill="#00c076" font-family="IBM Plex Sans">↑</text>
+
+  <!-- Séparateurs -->
+  <line x1="160" y1="5" x2="160" y2="165" stroke="#fff" stroke-width="0.5" opacity="0.08"/>
+  <line x1="320" y1="5" x2="320" y2="165" stroke="#fff" stroke-width="0.5" opacity="0.08"/>
+</svg>
+
 <p><span class="term">Double sommet (Double Top)</span> : deux sommets à des niveaux similaires séparés par un creux. Confirmation à la cassure du creux intermédiaire (ligne de cou). Signal baissier.</p>
 <p><span class="term">Double creux (Double Bottom)</span> : inverse. Deux creux + cassure du sommet intermédiaire. Signal haussier. Figure très fiable.</p>
 <p><span class="term">Épaule-Tête-Épaule (Head & Shoulders)</span> : trois sommets, celui du milieu plus haut. Cassure de la "ligne de cou" = retournement baissier majeur.</p>

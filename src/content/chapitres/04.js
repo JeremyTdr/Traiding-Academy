@@ -23,6 +23,51 @@ export default {
   <li><strong>Close (C)</strong> : prix de clôture</li>
 </ul>
 <div class="formula">Corps (body) = |Close − Open| — Mèches (wicks/shadows) = extensions vers High et Low</div>
+
+<svg viewBox="0 0 500 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <!-- Chandelier haussier -->
+  <text x="90" y="18" font-size="11" fill="#00c076" font-family="IBM Plex Mono" text-anchor="middle">HAUSSIER</text>
+  <line x1="90" y1="25" x2="90" y2="48" stroke="#00c076" stroke-width="2"/>
+  <rect x="68" y="48" width="44" height="70" rx="2" fill="#00c076" opacity="0.85"/>
+  <line x1="90" y1="118" x2="90" y2="148" stroke="#00c076" stroke-width="2"/>
+  <text x="120" y="32" font-size="9" fill="#aaa" font-family="IBM Plex Sans">High</text>
+  <line x1="118" y1="30" x2="93" y2="30" stroke="#555" stroke-width="0.8"/>
+  <text x="120" y="55" font-size="9" fill="#00c076" font-family="IBM Plex Sans">Close</text>
+  <line x1="118" y1="53" x2="113" y2="53" stroke="#555" stroke-width="0.8"/>
+  <text x="120" y="120" font-size="9" fill="#00c076" font-family="IBM Plex Sans">Open</text>
+  <line x1="118" y1="118" x2="113" y2="118" stroke="#555" stroke-width="0.8"/>
+  <text x="120" y="148" font-size="9" fill="#aaa" font-family="IBM Plex Sans">Low</text>
+  <line x1="118" y1="146" x2="93" y2="146" stroke="#555" stroke-width="0.8"/>
+  <text x="90" y="168" font-size="9" fill="#00c076" font-family="IBM Plex Sans" text-anchor="middle">Close &gt; Open</text>
+
+  <!-- Chandelier baissier -->
+  <text x="250" y="18" font-size="11" fill="#ff4d4d" font-family="IBM Plex Mono" text-anchor="middle">BAISSIER</text>
+  <line x1="250" y1="25" x2="250" y2="48" stroke="#ff4d4d" stroke-width="2"/>
+  <rect x="228" y="48" width="44" height="70" rx="2" fill="#ff4d4d" opacity="0.85"/>
+  <line x1="250" y1="118" x2="250" y2="148" stroke="#ff4d4d" stroke-width="2"/>
+  <text x="280" y="32" font-size="9" fill="#aaa" font-family="IBM Plex Sans">High</text>
+  <line x1="278" y1="30" x2="253" y2="30" stroke="#555" stroke-width="0.8"/>
+  <text x="280" y="55" font-size="9" fill="#ff4d4d" font-family="IBM Plex Sans">Open</text>
+  <line x1="278" y1="53" x2="273" y2="53" stroke="#555" stroke-width="0.8"/>
+  <text x="280" y="120" font-size="9" fill="#ff4d4d" font-family="IBM Plex Sans">Close</text>
+  <line x1="278" y1="118" x2="273" y2="118" stroke="#555" stroke-width="0.8"/>
+  <text x="280" y="148" font-size="9" fill="#aaa" font-family="IBM Plex Sans">Low</text>
+  <line x1="278" y1="146" x2="253" y2="146" stroke="#555" stroke-width="0.8"/>
+  <text x="250" y="168" font-size="9" fill="#ff4d4d" font-family="IBM Plex Sans" text-anchor="middle">Open &gt; Close</text>
+
+  <!-- Doji -->
+  <text x="410" y="18" font-size="11" fill="#f59e0b" font-family="IBM Plex Mono" text-anchor="middle">DOJI</text>
+  <line x1="410" y1="25" x2="410" y2="83" stroke="#f59e0b" stroke-width="2"/>
+  <line x1="388" y1="83" x2="432" y2="83" stroke="#f59e0b" stroke-width="3"/>
+  <line x1="410" y1="83" x2="410" y2="148" stroke="#f59e0b" stroke-width="2"/>
+  <text x="410" y="168" font-size="9" fill="#f59e0b" font-family="IBM Plex Sans" text-anchor="middle">Open ≈ Close</text>
+  <text x="410" y="178" font-size="9" fill="#f59e0b" font-family="IBM Plex Sans" text-anchor="middle" opacity="0.7">Indécision</text>
+
+  <!-- Séparateurs -->
+  <line x1="170" y1="10" x2="170" y2="175" stroke="#ffffff" stroke-width="0.5" opacity="0.1"/>
+  <line x1="340" y1="10" x2="340" y2="175" stroke="#ffffff" stroke-width="0.5" opacity="0.1"/>
+</svg>
+
 <p><strong>Chandelier haussier (vert/blanc)</strong> : Close &gt; Open. Les acheteurs ont dominé la session.<br>
 <strong>Chandelier baissier (rouge/noir)</strong> : Close &lt; Open. Les vendeurs ont dominé.</p>
 <div class="highlight-box">
@@ -34,6 +79,42 @@ export default {
 <p><span class="term">Marteau inversé (Inverted Hammer)</span> : petit corps en bas, longue mèche haute. Après une baisse, signale une tentative des acheteurs. Moins fiable que le Hammer — attendre confirmation.</p>
 <p><span class="term">Englobant haussier (Bullish Engulfing)</span> : chandelier rouge suivi d'un vert dont le corps englobe entièrement le précédent. Signal de retournement fort, surtout sur un support ou après une forte baisse.</p>
 <p><span class="term">Doji</span> : Open ≈ Close, corps quasi inexistant. Indécision totale. Sur un support ou résistance, il peut annoncer un retournement. En isolation, il est neutre.</p>
+<svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <!-- Hammer -->
+  <text x="55" y="18" font-size="10" fill="#00c076" font-family="IBM Plex Mono" text-anchor="middle">HAMMER</text>
+  <line x1="55" y1="30" x2="55" y2="44" stroke="#00c076" stroke-width="2"/>
+  <rect x="43" y="44" width="24" height="16" rx="2" fill="#00c076"/>
+  <line x1="55" y1="60" x2="55" y2="110" stroke="#00c076" stroke-width="2"/>
+  <text x="55" y="125" font-size="8" fill="#aaa" font-family="IBM Plex Sans" text-anchor="middle">Retournement ↑</text>
+
+  <!-- Shooting Star -->
+  <text x="145" y="18" font-size="10" fill="#ff4d4d" font-family="IBM Plex Mono" text-anchor="middle">SHOOTING STAR</text>
+  <line x1="145" y1="30" x2="145" y2="80" stroke="#ff4d4d" stroke-width="2"/>
+  <rect x="133" y="80" width="24" height="16" rx="2" fill="#ff4d4d"/>
+  <line x1="145" y1="96" x2="145" y2="110" stroke="#ff4d4d" stroke-width="2"/>
+  <text x="145" y="125" font-size="8" fill="#aaa" font-family="IBM Plex Sans" text-anchor="middle">Retournement ↓</text>
+
+  <!-- Bullish Engulfing -->
+  <text x="255" y="18" font-size="10" fill="#00c076" font-family="IBM Plex Mono" text-anchor="middle">ENGULFING HAUSSIER</text>
+  <line x1="240" y1="55" x2="240" y2="62" stroke="#ff4d4d" stroke-width="1.5"/>
+  <rect x="232" y="62" width="16" height="26" rx="2" fill="#ff4d4d" opacity="0.9"/>
+  <line x1="240" y1="88" x2="240" y2="95" stroke="#ff4d4d" stroke-width="1.5"/>
+  <line x1="268" y1="44" x2="268" y2="55" stroke="#00c076" stroke-width="1.5"/>
+  <rect x="257" y="55" width="22" height="50" rx="2" fill="#00c076" opacity="0.9"/>
+  <line x1="268" y1="105" x2="268" y2="115" stroke="#00c076" stroke-width="1.5"/>
+  <text x="255" y="130" font-size="8" fill="#aaa" font-family="IBM Plex Sans" text-anchor="middle">2ème bougie englobe la 1ère</text>
+
+  <!-- Marubozu -->
+  <text x="400" y="18" font-size="10" fill="#00d4aa" font-family="IBM Plex Mono" text-anchor="middle">MARUBOZU</text>
+  <rect x="384" y="30" width="32" height="80" rx="2" fill="#00d4aa" opacity="0.9"/>
+  <text x="400" y="125" font-size="8" fill="#aaa" font-family="IBM Plex Sans" text-anchor="middle">Sans mèches = conviction</text>
+
+  <!-- Séparateurs -->
+  <line x1="100" y1="10" x2="100" y2="140" stroke="#fff" stroke-width="0.5" opacity="0.08"/>
+  <line x1="200" y1="10" x2="200" y2="140" stroke="#fff" stroke-width="0.5" opacity="0.08"/>
+  <line x1="320" y1="10" x2="320" y2="140" stroke="#fff" stroke-width="0.5" opacity="0.08"/>
+</svg>
+
 <div class="highlight-box">
   🎯 <strong>Règle d'or :</strong> aucun chandelier ne se lit seul. Le contexte (tendance, niveau de support/résistance, volumes) est indispensable pour interpréter correctement le signal.
 </div>

@@ -17,6 +17,36 @@ export default {
 <h2>1. Le RSI : Relative Strength Index</h2>
 <p>Le <span class="term">RSI</span> (J. Welles Wilder, 1978) mesure la vitesse et l'amplitude des variations de prix sur 14 périodes par défaut. Il oscille entre 0 et 100.</p>
 <div class="formula">RSI = 100 − [100 / (1 + RS)] — RS = Moyenne des hausses / Moyenne des baisses sur 14 périodes</div>
+
+<svg viewBox="0 0 500 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <!-- Axe RSI 0-100 -->
+  <text x="20" y="18" font-size="10" fill="#00d4aa" font-family="IBM Plex Mono">RSI</text>
+  <!-- Zones colorées -->
+  <rect x="40" y="20" width="440" height="20" rx="2" fill="#ff4d4d" opacity="0.15"/>
+  <rect x="40" y="40" width="440" height="50" rx="0" fill="#1a2535" opacity="0.5"/>
+  <rect x="40" y="90" width="440" height="20" rx="2" fill="#00c076" opacity="0.15"/>
+  <!-- Labels zones -->
+  <text x="46" y="34" font-size="9" fill="#ff4d4d" font-family="IBM Plex Sans">Surachat (70-100) — prudence vente</text>
+  <text x="46" y="58" font-size="9" fill="#aaa" font-family="IBM Plex Sans">Zone neutre (30-70)</text>
+  <text x="200" y="68" font-size="8" fill="#f59e0b" font-family="IBM Plex Mono">50 — ligne de partage</text>
+  <text x="46" y="105" font-size="9" fill="#00c076" font-family="IBM Plex Sans">Survente (0-30) — prudence achat</text>
+  <!-- Ligne 50 -->
+  <line x1="40" y1="65" x2="480" y2="65" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.5"/>
+  <!-- Ligne 70 -->
+  <line x1="40" y1="40" x2="480" y2="40" stroke="#ff4d4d" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>
+  <text x="484" y="44" font-size="8" fill="#ff4d4d" font-family="IBM Plex Mono">70</text>
+  <!-- Ligne 30 -->
+  <line x1="40" y1="90" x2="480" y2="90" stroke="#00c076" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>
+  <text x="484" y="94" font-size="8" fill="#00c076" font-family="IBM Plex Mono">30</text>
+  <!-- Courbe RSI exemple -->
+  <polyline points="50,30 80,55 110,75 140,85 165,95 185,88 210,65 240,45 270,35 300,55 330,70 360,80 390,92 420,88 450,65 475,50" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Labels 0 et 100 -->
+  <text x="484" y="24" font-size="8" fill="#aaa" font-family="IBM Plex Mono">100</text>
+  <text x="484" y="114" font-size="8" fill="#aaa" font-family="IBM Plex Mono">0</text>
+  <line x1="40" y1="20" x2="480" y2="20" stroke="#fff" stroke-width="0.5" opacity="0.1"/>
+  <line x1="40" y1="110" x2="480" y2="110" stroke="#fff" stroke-width="0.5" opacity="0.1"/>
+</svg>
+
 <p><strong>Niveaux clés :</strong></p>
 <ul>
   <li><strong>RSI &gt; 70</strong> : zone de surachat (overbought). Le mouvement haussier peut s'essouffler.</li>
@@ -40,6 +70,46 @@ export default {
   <li><strong>Passage de la ligne zéro</strong> : MACD au-dessus de 0 = tendance haussière.</li>
   <li><strong>Divergence MACD</strong> : comme pour le RSI, les divergences entre prix et MACD sont des signaux précieux.</li>
 </ul>
+<svg viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <text x="20" y="18" font-size="10" fill="#00d4aa" font-family="IBM Plex Mono">MACD</text>
+  <!-- Ligne zéro -->
+  <line x1="30" y1="85" x2="480" y2="85" stroke="#fff" stroke-width="0.8" opacity="0.15"/>
+  <text x="484" y="88" font-size="8" fill="#aaa" font-family="IBM Plex Mono">0</text>
+  <!-- Histogramme -->
+  <rect x="40" y="95" width="12" height="30" rx="1" fill="#ff4d4d" opacity="0.7"/>
+  <rect x="58" y="92" width="12" height="33" rx="1" fill="#ff4d4d" opacity="0.7"/>
+  <rect x="76" y="88" width="12" height="37" rx="1" fill="#ff4d4d" opacity="0.7"/>
+  <rect x="94" y="82" width="12" height="43" rx="1" fill="#ff4d4d" opacity="0.6"/>
+  <rect x="112" y="80" width="12" height="5" rx="1" fill="#ff4d4d" opacity="0.5"/>
+  <rect x="130" y="79" width="12" height="6" rx="1" fill="#00c076" opacity="0.5"/>
+  <rect x="148" y="72" width="12" height="13" rx="1" fill="#00c076" opacity="0.6"/>
+  <rect x="166" y="62" width="12" height="23" rx="1" fill="#00c076" opacity="0.7"/>
+  <rect x="184" y="52" width="12" height="33" rx="1" fill="#00c076" opacity="0.7"/>
+  <rect x="202" y="47" width="12" height="38" rx="1" fill="#00c076" opacity="0.8"/>
+  <rect x="220" y="50" width="12" height="35" rx="1" fill="#00c076" opacity="0.7"/>
+  <rect x="238" y="60" width="12" height="25" rx="1" fill="#00c076" opacity="0.6"/>
+  <rect x="256" y="70" width="12" height="15" rx="1" fill="#00c076" opacity="0.5"/>
+  <rect x="274" y="82" width="12" height="3" rx="1" fill="#00c076" opacity="0.4"/>
+  <rect x="292" y="83" width="12" height="8" rx="1" fill="#ff4d4d" opacity="0.5"/>
+  <rect x="310" y="78" width="12" height="18" rx="1" fill="#ff4d4d" opacity="0.6"/>
+  <!-- Ligne MACD -->
+  <polyline points="46,118 64,116 82,112 100,106 118,87 136,82 154,76 172,68 190,58 208,52 226,55 244,64 262,73 280,84 298,88 316,82" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Ligne Signal -->
+  <polyline points="46,120 64,118 82,115 100,110 118,95 136,87 154,80 172,72 190,62 208,55 226,56 244,63 262,70 280,80 298,86 316,84" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="4,2"/>
+  <!-- Croisement haussier annotation -->
+  <circle cx="127" cy="84" r="6" stroke="#00c076" stroke-width="1.5" fill="none"/>
+  <text x="100" y="142" font-size="9" fill="#00c076" font-family="IBM Plex Sans">Croisement ↑</text>
+  <!-- Légende -->
+  <line x1="340" y1="30" x2="360" y2="30" stroke="#00d4aa" stroke-width="2"/>
+  <text x="365" y="34" font-size="9" fill="#00d4aa" font-family="IBM Plex Sans">Ligne MACD</text>
+  <line x1="340" y1="48" x2="360" y2="48" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="365" y="52" font-size="9" fill="#f59e0b" font-family="IBM Plex Sans">Signal</text>
+  <rect x="340" y="62" width="12" height="10" rx="1" fill="#00c076" opacity="0.7"/>
+  <text x="357" y="71" font-size="9" fill="#00c076" font-family="IBM Plex Sans">Histogramme +</text>
+  <rect x="340" y="78" width="12" height="10" rx="1" fill="#ff4d4d" opacity="0.7"/>
+  <text x="357" y="87" font-size="9" fill="#ff4d4d" font-family="IBM Plex Sans">Histogramme −</text>
+</svg>
+
 <div class="highlight-box">
   ⚠️ <strong>Lag important :</strong> le MACD est un indicateur retardé (lagging). Les croisements arrivent après que le mouvement a commencé. Utile pour confirmer une tendance, moins pour anticiper les retournements exacts.
 </div>
@@ -47,6 +117,42 @@ export default {
 <h2>3. Les Bandes de Bollinger</h2>
 <p>Les <span class="term">Bandes de Bollinger</span> (John Bollinger) encadrent le prix avec une bande centrale (MM20) et deux bandes à ±2 écarts-types.</p>
 <div class="formula">Bande centrale = MM(20) — Bande haute = MM(20) + 2σ — Bande basse = MM(20) − 2σ</div>
+
+<svg viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <text x="20" y="16" font-size="10" fill="#00d4aa" font-family="IBM Plex Mono">BANDES DE BOLLINGER</text>
+  <!-- Zone squeeze (gauche) -->
+  <text x="70" y="35" font-size="9" fill="#f59e0b" font-family="IBM Plex Sans" text-anchor="middle">SQUEEZE</text>
+  <!-- Bande haute squeeze -->
+  <path d="M 20,60 C 40,58 60,56 80,57 C 100,58 120,59 140,60" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.7"/>
+  <!-- Bande basse squeeze -->
+  <path d="M 20,90 C 40,88 60,84 80,83 C 100,82 120,83 140,85" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.7"/>
+  <!-- Bande centrale squeeze -->
+  <path d="M 20,75 C 60,72 100,71 140,73" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>
+  <!-- Zone entre les bandes squeeze -->
+  <path d="M 20,60 C 40,58 60,56 80,57 C 100,58 120,59 140,60 L 140,85 C 120,83 100,82 80,83 C 60,84 40,88 20,90 Z" fill="#00d4aa" opacity="0.05"/>
+  <!-- Prix dans squeeze -->
+  <polyline points="25,74 40,70 55,76 70,72 85,74 100,71 115,75 130,73" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/>
+  <text x="70" y="125" font-size="8" fill="#f59e0b" font-family="IBM Plex Sans" text-anchor="middle">Volatilité basse → explosion imminente</text>
+
+  <!-- Flèche expansion -->
+  <line x1="155" y1="75" x2="180" y2="75" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="162" y="70" font-size="8" fill="#aaa">→</text>
+
+  <!-- Zone expansion (droite) -->
+  <text x="340" y="35" font-size="9" fill="#00c076" font-family="IBM Plex Sans" text-anchor="middle">EXPANSION</text>
+  <!-- Bande haute expansion -->
+  <path d="M 185,65 C 210,58 240,40 270,25 C 300,15 340,12 380,15 C 410,17 440,20 470,22" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.7"/>
+  <!-- Bande basse expansion -->
+  <path d="M 185,85 C 210,90 240,100 270,108 C 300,115 340,118 380,115 C 410,112 440,108 470,105" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.7"/>
+  <!-- Bande centrale expansion -->
+  <path d="M 185,75 C 220,74 270,66 330,62 C 380,60 430,60 470,62" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" opacity="0.6"/>
+  <!-- Zone entre bandes expansion -->
+  <path d="M 185,65 C 210,58 240,40 270,25 C 300,15 340,12 380,15 C 410,17 440,20 470,22 L 470,105 C 440,108 410,112 380,115 C 340,118 300,115 270,108 C 240,100 210,90 185,85 Z" fill="#00c076" opacity="0.05"/>
+  <!-- Prix expansion (marche sur bande haute) -->
+  <polyline points="190,75 210,62 230,48 250,35 270,28 295,20 320,18 350,16 380,17 410,19 440,21 465,23" fill="none" stroke="#00c076" stroke-width="2" stroke-linejoin="round"/>
+  <text x="340" y="130" font-size="8" fill="#00c076" font-family="IBM Plex Sans" text-anchor="middle">Prix "marche" sur la bande haute → tendance forte</text>
+</svg>
+
 <p>Statistiquement, ~95% des prix restent entre les deux bandes. Quand le prix sort des bandes, c'est exceptionnel.</p>
 <ul>
   <li><strong>Squeeze (compression)</strong> : les bandes se rapprochent fortement → volatilité en baisse → explosion imminente.</li>

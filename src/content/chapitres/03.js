@@ -33,6 +33,38 @@ export default {
   <li><strong>Consolidation (range)</strong> : le prix oscille entre deux niveaux sans direction claire.</li>
 </ul>
 <div class="formula">Uptrend : HH + HL — Downtrend : LH + LL — Range : oscillation horizontale</div>
+
+<svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <!-- Uptrend -->
+  <text x="80" y="18" font-size="11" fill="#00c076" font-family="IBM Plex Mono" text-anchor="middle">UPTREND</text>
+  <polyline points="20,130 50,110 70,120 100,90 120,100 150,65 170,78" fill="none" stroke="#00c076" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="50" y1="110" x2="100" y2="90" stroke="#00c076" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+  <line x1="70" y1="120" x2="120" y2="100" stroke="#00c076" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+  <text x="50" y="107" font-size="8" fill="#00c076" opacity="0.8">HH</text>
+  <text x="100" y="87" font-size="8" fill="#00c076" opacity="0.8">HH</text>
+  <text x="150" y="62" font-size="8" fill="#00c076" opacity="0.8">HH</text>
+  <text x="68" y="133" font-size="8" fill="#00c076" opacity="0.6">HL</text>
+  <text x="118" y="113" font-size="8" fill="#00c076" opacity="0.6">HL</text>
+  <!-- Range -->
+  <text x="260" y="18" font-size="11" fill="#f59e0b" font-family="IBM Plex Mono" text-anchor="middle">RANGE</text>
+  <line x1="195" y1="70" x2="330" y2="70" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+  <line x1="195" y1="120" x2="330" y2="120" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+  <polyline points="200,95 220,68 240,122 260,70 280,118 300,72 320,120" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linejoin="round"/>
+  <text x="332" y="73" font-size="8" fill="#f59e0b" opacity="0.8">R</text>
+  <text x="332" y="123" font-size="8" fill="#f59e0b" opacity="0.8">S</text>
+  <!-- Downtrend -->
+  <text x="420" y="18" font-size="11" fill="#ff4d4d" font-family="IBM Plex Mono" text-anchor="middle">DOWNTREND</text>
+  <polyline points="350,40 380,60 400,48 430,75 450,62 480,95 495,85" fill="none" stroke="#ff4d4d" stroke-width="2" stroke-linejoin="round"/>
+  <text x="378" y="57" font-size="8" fill="#ff4d4d" opacity="0.8">LH</text>
+  <text x="428" y="72" font-size="8" fill="#ff4d4d" opacity="0.8">LH</text>
+  <text x="478" y="92" font-size="8" fill="#ff4d4d" opacity="0.8">LH</text>
+  <text x="398" y="62" font-size="8" fill="#ff4d4d" opacity="0.6">LL</text>
+  <text x="448" y="77" font-size="8" fill="#ff4d4d" opacity="0.6">LL</text>
+  <!-- Séparateurs -->
+  <line x1="185" y1="10" x2="185" y2="150" stroke="#ffffff" stroke-width="0.5" opacity="0.1"/>
+  <line x1="340" y1="10" x2="340" y2="150" stroke="#ffffff" stroke-width="0.5" opacity="0.1"/>
+</svg>
+
 <div class="highlight-box">
   📏 <strong>Multi-timeframe :</strong> une tendance haussière en hebdomadaire peut contenir des corrections baissières en journalier. En swing trading, on trade dans le sens de la tendance principale (hebdo/journalier) et on cherche des points d'entrée sur des unités de temps inférieures.
 </div>
@@ -40,6 +72,29 @@ export default {
 <h2>3. Supports et résistances (introduction)</h2>
 <p>Un <span class="term">support</span> est un niveau de prix où la demande historiquement arrête ou inverse une baisse. Une <span class="term">résistance</span> est un niveau où l'offre stoppe ou inverse une hausse.</p>
 <p>Ces niveaux sont des zones de "mémoire du marché" : les acteurs se souviennent des niveaux auxquels des transactions importantes ont eu lieu.</p>
+<svg viewBox="0 0 500 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin:16px 0;border-radius:8px;background:#0d1520;display:block">
+  <!-- Zone résistance -->
+  <line x1="20" y1="50" x2="480" y2="50" stroke="#ff4d4d" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="24" y="44" font-size="10" fill="#ff4d4d" font-family="IBM Plex Mono">RÉSISTANCE</text>
+  <!-- Zone support -->
+  <line x1="20" y1="130" x2="480" y2="130" stroke="#00c076" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="24" y="148" font-size="10" fill="#00c076" font-family="IBM Plex Mono">SUPPORT</text>
+  <!-- Prix : rebonds sur support, rejet sur résistance -->
+  <polyline points="30,90 70,130 90,100 130,50 120,80 160,130 180,95 220,50 210,75 250,130 270,100 310,50" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Flèches de rejet résistance -->
+  <line x1="130" y1="50" x2="130" y2="68" stroke="#ff4d4d" stroke-width="1.5" marker-end="url(#arr-down)"/>
+  <line x1="220" y1="50" x2="220" y2="68" stroke="#ff4d4d" stroke-width="1.5"/>
+  <line x1="310" y1="50" x2="310" y2="68" stroke="#ff4d4d" stroke-width="1.5"/>
+  <!-- Flèches de rebond support -->
+  <line x1="70" y1="130" x2="70" y2="112" stroke="#00c076" stroke-width="1.5"/>
+  <line x1="160" y1="130" x2="160" y2="112" stroke="#00c076" stroke-width="1.5"/>
+  <line x1="250" y1="130" x2="250" y2="112" stroke="#00c076" stroke-width="1.5"/>
+  <!-- Cassure + inversion -->
+  <polyline points="310,50 340,30 370,55 400,45 430,58 460,48" fill="none" stroke="#ff4d4d" stroke-width="2" stroke-linejoin="round"/>
+  <text x="345" y="25" font-size="9" fill="#ff4d4d" font-family="IBM Plex Sans">Cassure !</text>
+  <line x1="320" y1="50" x2="460" y2="50" stroke="#00c076" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+  <text x="350" y="64" font-size="9" fill="#00c076" font-family="IBM Plex Sans" opacity="0.8">→ devient support</text>
+</svg>
 <div class="highlight-box">
   🔄 <strong>Inversion des rôles :</strong> quand un support est cassé avec conviction, il devient une résistance (et vice versa). C'est l'une des règles les plus fiables de l'AT.
 </div>

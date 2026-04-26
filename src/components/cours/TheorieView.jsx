@@ -1,6 +1,17 @@
 import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react'
+import glossaire from '../../content/glossaire'
+
+function injecterTooltips(html) {
+  return html.replace(/<span class="term">([^<]+)<\/span>/g, (match, terme) => {
+    const def = glossaire[terme] || glossaire[terme.toLowerCase()]
+    if (!def) return match
+    const escaped = def.replace(/"/g, '&quot;')
+    return `<span class="term" data-def="${escaped}">${terme}</span>`
+  })
+}
 
 export default function TheorieView({ chapitre, onRetour, onAllerQcm, dejaValide, qcmEntame }) {
+  const coursHtml = injecterTooltips(chapitre.cours)
   return (
     <div>
       {/* Nav bar */}
@@ -43,7 +54,7 @@ export default function TheorieView({ chapitre, onRetour, onAllerQcm, dejaValide
       {/* Contenu HTML du cours */}
       <div
         className="theory-body"
-        dangerouslySetInnerHTML={{ __html: chapitre.cours }}
+        dangerouslySetInnerHTML={{ __html: coursHtml }}
       />
 
       {/* CTA bas de page */}
